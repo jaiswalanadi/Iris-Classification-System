@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Species Prediction</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-title">🌸 Iris Classification</h1>
+                <ul class="nav-menu">
+                    <li><a href="/" class="nav-link">Home</a></li>
+                    <li><a href="/predict-page" class="nav-link active">Predict</a></li>
+                    <li><a href="/docs" class="nav-link">API Docs</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="prediction-section">
+            <div class="prediction-container">
+                <div class="form-section">
+                    <h1>🔮 Iris Species Prediction</h1>
+                    <p>Enter the flower measurements to predict the iris species</p>
+
+                    {% if error %}
+                    <div class="alert alert-error">
+                        <strong>Error:</strong> {{ error }}
+                    </div>
+                    {% endif %}
+
+                    <form id="predictionForm" action="/predict-form" method="post" class="prediction-form">
+                        <div class="form-group">
+                            <label for="sepal_length">Sepal Length (cm)</label>
+                            <input 
+                                type="number" 
+                                id="sepal_length" 
+                                name="sepal_length" 
+                                step="0.1" 
+                                min="0" 
+                                max="10" 
+                                required
+                                value="{% if input_features %}{{ input_features.sepal_length }}{% endif %}"
+                                placeholder="e.g., 5.1"
+                            >
+                            <small>Typical range: 4.3 - 7.9 cm</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="sepal_width">Sepal Width (cm)</label>
+                            <input 
+                                type="number" 
+                                id="sepal_width" 
+                                name="sepal_width" 
+                                step="0.1" 
+                                min="0" 
+                                max="10" 
+                                required
+                                value="{% if input_features %}{{ input_features.sepal_width }}{% endif %}"
+                                placeholder="e.g., 3.5"
+                            >
+                            <small>Typical range: 2.0 - 4.4 cm</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="petal_length">Petal Length (cm)</label>
+                            <input 
+                                type="number" 
+                                id="petal_length" 
+                                name="petal_length" 
+                                step="0.1" 
+                                min="0" 
+                                max="10" 
+                                required
+                                value="{% if input_features %}{{ input_features.petal_length }}{% endif %}"
+                                placeholder="e.g., 1.4"
+                            >
+                            <small>Typical range: 1.0 - 6.9 cm</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="petal_width">Petal Width (cm)</label>
+                            <input 
+                                type="number" 
+                                id="petal_width" 
+                                name="petal_width" 
+                                step="0.1" 
+                                min="0" 
+                                max="10" 
+                                required
+                                value="{% if input_features %}{{ input_features.petal_width }}{% endif %}"
+                                placeholder="e.g., 0.2"
+                            >
+                            <small>Typical range: 0.1 - 2.5 cm</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="model_name">Select Model (Optional)</label>
+                            <select id="model_name" name="model_name">
+                                <option value="">Best Model ({{ model_info.best_model|title }})</option>
+                                {% for model in model_info.models %}
+                                <option value="{{ model }}">{{ model|title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <button type="submit" class="btn-primary btn-large">
+                            🔍 Predict Species
+                        </button>
+                    </form>
+
+                    <div class="example-values">
+                        <h3>💡 Example Values</h3>
+                        <div class="examples-grid">
+                            <button class="example-btn" onclick="fillExample('setosa')">
+                                Iris Setosa<br>
+                                <small>5.1, 3.5, 1.4, 0.2</small>
+                            </button>
+                            <button class="example-btn" onclick="fillExample('versicolor')">
+                                Iris Versicolor<br>
+                                <small>7.0, 3.2, 4.7, 1.4</small>
+                            </button>
+                            <button class="example-btn" onclick="fillExample('virginica')">
+                                Iris Virginica<br>
+                                <small>6.3, 3.3, 6.0, 2.5</small>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {% if prediction_result %}
+                <div class="result-section">
+                    <div class="prediction-result">
+                        <h2>🎯 Prediction Result</h2>
+                        
+                        <div class="result-card">
+                            <div class="species-prediction">
+                                <h3>{{ prediction_result.prediction }}</h3>
+                                <div class="confidence-score">
+                                    <span class="confidence-label">Confidence:</span>
+                                    <span class="confidence-value">{{ "%.1f"|format(prediction_result.confidence * 100) }}%</span>
+                                </div>
+                            </div>
+
+                            <div class="model-used">
+                                <strong>Model:</strong> {{ prediction_result.model_used|title }}
+                            </div>
+
+                            <div class="probabilities">
+                                <h4>Species Probabilities</h4>
+                                {% for species, probability in prediction_result.probabilities.items() %}
+                                <div class="probability-bar">
+                                    <div class="probability-label">{{ species }}</div>
+                                    <div class="probability-container">
+                                        <div class="probability-fill" style="width: {{ probability * 100 }}%"></div>
+                                        <span class="probability-text">{{ "%.1f"|format(probability * 100) }}%</span>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="input-summary">
+                            <h4>Input Values</h4>
+                            <div class="input-grid">
+                                <div class="input-item">
+                                    <span class="label">Sepal Length:</span>
+                                    <span class="value">{{ input_features.sepal_length }} cm</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="label">Sepal Width:</span>
+                                    <span class="value">{{ input_features.sepal_width }} cm</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="label">Petal Length:</span>
+                                    <span class="value">{{ input_features.petal_length }} cm</span>
+                                </div>
+                                <div class="input-item">
+                                    <span class="label">Petal Width:</span>
+                                    <span class="value">{{ input_features.petal_width }} cm</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="resetForm()" class="btn-secondary">
+                            🔄 Make Another Prediction
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="species-info">
+            <h2>📖 Iris Species Guide</h2>
+            <div class="species-grid">
+                <div class="species-card">
+                    <h3>Iris Setosa</h3>
+                    <ul>
+                        <li>Smallest overall size</li>
+                        <li>Short, wide petals</li>
+                        <li>Easily distinguishable</li>
+                        <li>Native to Alaska and eastern Asia</li>
+                    </ul>
+                </div>
+                <div class="species-card">
+                    <h3>Iris Versicolor</h3>
+                    <ul>
+                        <li>Medium-sized measurements</li>
+                        <li>Moderate petal dimensions</li>
+                        <li>Blue flag iris</li>
+                        <li>Found in eastern North America</li>
+                    </ul>
+                </div>
+                <div class="species-card">
+                    <h3>Iris Virginica</h3>
+                    <ul>
+                        <li>Largest overall size</li>
+                        <li>Long, wide petals</li>
+                        <li>Southern blue flag</li>
+                        <li>Native to eastern United States</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Iris Classification System. Built with FastAPI and Machine Learning.</p>
+        </div>
+    </footer>
+
+    <script>
+        function fillExample(species) {
+            const examples = {
+                'setosa': [5.1, 3.5, 1.4, 0.2],
+                'versicolor': [7.0, 3.2, 4.7, 1.4],
+                'virginica': [6.3, 3.3, 6.0, 2.5]
+            };
+            
+            const values = examples[species];
+            document.getElementById('sepal_length').value = values[0];
+            document.getElementById('sepal_width').value = values[1];
+            document.getElementById('petal_length').value = values[2];
+            document.getElementById('petal_width').value = values[3];
+        }
+
+        function resetForm() {
+            document.getElementById('predictionForm').reset();
+            // Hide result section if it exists
+            const resultSection = document.querySelector('.result-section');
+            if (resultSection) {
+                resultSection.style.display = 'none';
+            }
+        }
+
+        // Form validation
+        document.getElementById('predictionForm').addEventListener('submit', function(e) {
+            const inputs = this.querySelectorAll('input[type="number"]');
+            let isValid = true;
+            
+            inputs.forEach(input => {
+                const value = parseFloat(input.value);
+                if (isNaN(value) || value < 0 || value > 10) {
+                    isValid = false;
+                    input.style.borderColor = '#ff4444';
+                } else {
+                    input.style.borderColor = '#ddd';
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                alert('Please enter valid measurements between 0 and 10 cm');
+            }
+        });
+    </script>
+</body>
+</html>
