@@ -1,4 +1,4 @@
-# 🌸 Iris Classification System
+# Iris Classification System
 
 A comprehensive machine learning system for classifying Iris flower species using advanced ML algorithms with a modern web interface.
 
