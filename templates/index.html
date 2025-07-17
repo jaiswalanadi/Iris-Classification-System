@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Classification System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <header>
+        <nav class="navbar">
+            <div class="nav-container">
+                <h1 class="nav-title">🌸 Iris Classification</h1>
+                <ul class="nav-menu">
+                    <li><a href="/" class="nav-link active">Home</a></li>
+                    <li><a href="/predict-page" class="nav-link">Predict</a></li>
+                    <li><a href="/docs" class="nav-link">API Docs</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container">
+        <section class="hero">
+            <div class="hero-content">
+                <h1>AI-Powered Iris Species Classification</h1>
+                <p>Advanced machine learning system for accurate identification of Iris flower species using sepal and petal measurements.</p>
+                
+                {% if model_info.trained %}
+                <div class="status-card success">
+                    <h3>✅ System Ready</h3>
+                    <p>Models are trained and ready for predictions</p>
+                    <p><strong>Available Models:</strong> {{ model_info.models|length }}</p>
+                    <p><strong>Best Model:</strong> {{ model_info.best_model|title }}</p>
+                </div>
+                {% else %}
+                <div class="status-card warning">
+                    <h3>⚠️ Training Required</h3>
+                    <p>Models need to be trained before making predictions</p>
+                    <button id="trainBtn" class="btn-primary">Start Training</button>
+                </div>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="features">
+            <h2>System Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3>Multiple ML Models</h3>
+                    <p>Random Forest, SVM, KNN, and Logistic Regression algorithms for optimal accuracy</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📊</div>
+                    <h3>Comprehensive Analysis</h3>
+                    <p>Detailed reports with visualizations, metrics, and feature importance analysis</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">⚡</div>
+                    <h3>Real-time Predictions</h3>
+                    <p>Instant species classification with confidence scores and probability distributions</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📈</div>
+                    <h3>Performance Metrics</h3>
+                    <p>Cross-validation, confusion matrices, and model comparison analytics</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="actions">
+            <h2>Quick Actions</h2>
+            <div class="actions-grid">
+                {% if model_info.trained %}
+                <a href="/predict-page" class="action-card primary">
+                    <h3>🔮 Make Prediction</h3>
+                    <p>Classify iris species using flower measurements</p>
+                </a>
+                {% else %}
+                <div class="action-card disabled">
+                    <h3>🔮 Make Prediction</h3>
+                    <p>Train models first to enable predictions</p>
+                </div>
+                {% endif %}
+                
+                <div class="action-card" onclick="trainModels()">
+                    <h3>🎯 Train Models</h3>
+                    <p>Train or retrain all machine learning models</p>
+                </div>
+                
+                {% if model_info.trained %}
+                <div class="action-card" onclick="generateReport()">
+                    <h3>📋 Generate Report</h3>
+                    <p>Create comprehensive analysis report</p>
+                </div>
+                {% else %}
+                <div class="action-card disabled">
+                    <h3>📋 Generate Report</h3>
+                    <p>Train models first to generate reports</p>
+                </div>
+                {% endif %}
+                
+                <a href="/docs" class="action-card">
+                    <h3>📚 API Documentation</h3>
+                    <p>Explore REST API endpoints and schemas</p>
+                </a>
+            </div>
+        </section>
+
+        {% if model_info.trained %}
+        <section class="model-info">
+            <h2>Model Information</h2>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>Species Classification</h3>
+                    <ul>
+                        {% for species in model_info.species_mapping.values() %}
+                        <li>{{ species }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="info-card">
+                    <h3>Available Models</h3>
+                    <ul>
+                        {% for model in model_info.models %}
+                        <li>{{ model|title }}{% if model == model_info.best_model %} ⭐{% endif %}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </section>
+        {% endif %}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2024 Iris Classification System. Built with FastAPI and Machine Learning.</p>
+        </div>
+    </footer>
+
+    <!-- Loading Modal -->
+    <div id="loadingModal" class="modal">
+        <div class="modal-content">
+            <div class="loading-spinner"></div>
+            <h3 id="loadingText">Processing...</h3>
+            <p id="loadingSubtext">Please wait while we complete the operation</p>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="success-icon">✅</div>
+            <h3 id="successTitle">Success!</h3>
+            <p id="successMessage">Operation completed successfully</p>
+            <button onclick="closeModal('successModal')" class="btn-primary">OK</button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="error-icon">❌</div>
+            <h3>Error</h3>
+            <p id="errorMessage">An error occurred</p>
+            <button onclick="closeModal('errorModal')" class="btn-primary">OK</button>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
