@@ -1,7 +1,10 @@
-📊 Report File Brief
-Overview
+#📊 Report File Brief
+
+#Overview
 The report generator creates a comprehensive HTML analysis report with interactive visualizations and detailed insights about the Iris classification project.
-Report Components
+
+#Report Components
+
 1. Executive Summary Section
 
 Dataset Overview: Sample count, features, species distribution
@@ -10,6 +13,7 @@ Key Statistics: Missing values, data quality indicators
 Training Summary: Time taken, models compared
 
 2. Interactive Visualizations
+
 Data Distribution Plots
 
 4-panel subplot: Histograms for each feature (Sepal/Petal Length/Width)
