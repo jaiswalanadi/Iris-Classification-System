@@ -280,3 +280,13 @@ async def health_check():
         "status": "healthy",
         "models_trained": model_trainer.is_trained if model_trainer else False,
         "available_models": list(model_trainer.ml_models.trained_models.keys()) if model_trainer and model_trainer.is_trained else []
+    }
+
+if __name__ == "__main__":
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=True,
+        log_level="info"
+    )
